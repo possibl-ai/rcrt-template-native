@@ -1,0 +1,34 @@
+{
+  "//": "EAS Build/Submit pipeline. A real cloud build needs `eas login` + project credentials (Apple/Google) that this scaffold cannot include. Run `eas build:configure` once, then `eas build -p ios|android --profile preview`. The Properlii SoW commits Possibl to RN via Expo/EAS — this matches that pipeline.",
+  "cli": {
+    "version": ">= 5.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_RCRT_API_URL": "",
+        "EXPO_PUBLIC_RCRT_TENANT_ID": ""
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_RCRT_API_URL": "",
+        "EXPO_PUBLIC_RCRT_TENANT_ID": ""
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_RCRT_API_URL": "",
+        "EXPO_PUBLIC_RCRT_TENANT_ID": ""
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "RCRT Native",
+    "slug": "rcrt-template-native",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "rcrtnative",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ai.possibl.rcrtnative"
+    },
+    "android": {
+      "package": "ai.possibl.rcrtnative"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
