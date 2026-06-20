@@ -13,6 +13,23 @@ import { AuthProvider, useAuth } from '../src/lib/auth';
 // adapter). Created once at module scope.
 const storage = asyncStorageAdapter(AsyncStorage);
 
+// Brand via TOKENS, not forked components — the native counterpart of the web
+// template's --rcrt-* CSS variables (src/index.css). This indigo palette mirrors
+// the web console so both surfaces feel like one product. Rebrand by editing
+// these values; never fork a kit primitive.
+const brandTheme = {
+  bg: '#0f1013',
+  card: '#16171c',
+  secondary: '#23252b',
+  muted: '#212329',
+  mutedFg: '#9aa0ab',
+  border: '#282a31',
+  input: '#282a31',
+  accent: '#5b51e0',
+  accentFg: '#ffffff',
+  accent2: '#9461e6',
+};
+
 function Loading({ label }: { label: string }) {
   const t = useTheme();
   return (
@@ -34,6 +51,7 @@ function Shell() {
       tenantId={tenantId}
       storage={storage}
       eventSource={EventSource}
+      theme={brandTheme}
     >
       <StatusBar style="light" />
       <View style={{ flex: 1 }}>

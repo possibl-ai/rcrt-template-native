@@ -14,17 +14,26 @@ import {
   Button,
   EmptyState,
   SkeletonPanel,
+  type SectionComponentProps,
 } from '@possibl/rcrt-app-kit/native';
 import { glyph } from '../lib/icons';
 import { getClient } from '../lib/api-client';
 import { tenantId } from '../lib/env';
 import { Item, type ItemContent } from '../lib/schemas';
+import { seedSampleItems } from '../lib/sample-data';
 import { ItemRecord } from './ItemRecord';
 
 const anchors = {
   list: defineAnchor({ label: 'Items list' }),
   newItem: defineAnchor({ label: 'New item button' }),
 };
+
+// Abstract tabs declared on the section below. On NATIVE the kit's SectionScreen
+// renders the tab bar (a segmented control) and hands the body { tab, setTab };
+// the body just filters. (On web the same registry tabs map to ?tab=.) Page
+// context becomes `items:open` / `items:done` automatically.
+const TABS = ['all', 'open', 'done'] as const;
+type TabId = (typeof TABS)[number];
 
 // A prefillable form. intent/entity/distinguishFrom are STRUCTURED manifest
 // fields (not prose) so the advisor can prefill it precisely; the shell
@@ -39,13 +48,20 @@ const newItem = defineForm({
   },
 });
 
-function ItemsBody() {
+function ItemsBody({ tab }: SectionComponentProps) {
   const t = useTheme();
   const router = useRouter();
   const items = useCached('items:all', () => Item.query(getClient().forTenant(tenantId)));
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<{ name: string; note: string }>({ name: '', note: '' });
   const [saving, setSaving] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+
+  const active = (tab ?? 'all') as TabId;
+  const all = items.data ?? [];
+  const rows = all.filter((r) =>
+    active === 'all' ? true : active === 'done' ? r.content.status === 'done' : r.content.status !== 'done',
+  );
 
   // Consume advisor form prefills: when the advisor opens "items.new-item" with
   // researched values, the shell hands them here (validated to the fields).
@@ -74,6 +90,14 @@ function ItemsBody() {
     setSaving(false);
     setOpen(false);
     setDraft({ name: '', note: '' });
+    void items.refresh();
+  };
+
+  const seed = async () => {
+    if (seeding) return;
+    setSeeding(true);
+    await seedSampleItems();
+    setSeeding(false);
     void items.refresh();
   };
 
@@ -117,11 +141,26 @@ function ItemsBody() {
       <anchors.list.Anchor>
         {items.data === undefined ? (
           <SkeletonPanel />
-        ) : items.data.length === 0 ? (
-          <EmptyState title="No items" hint="Create your first item." />
+        ) : all.length === 0 ? (
+          <EmptyState
+            title="No items yet"
+            hint="Create your first item, or load a few samples to explore the template."
+            action={
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Button size="sm" onPress={() => setOpen(true)}>
+                  New item
+                </Button>
+                <Button size="sm" variant="outline" onPress={() => void seed()} loading={seeding}>
+                  Load sample data
+                </Button>
+              </View>
+            }
+          />
+        ) : rows.length === 0 ? (
+          <EmptyState title={`No ${active} items`} hint="Try a different tab." />
         ) : (
           <View style={{ gap: 8 }}>
-            {items.data.map((r) => (
+            {rows.map((r) => (
               <Pressable key={r.id} onPress={() => router.push(`/items/${r.id}`)}>
                 <Card>
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -144,7 +183,9 @@ export const items = defineSection({
   label: 'Items',
   icon: glyph('☷'),
   navGroup: 'Workspace',
-  description: 'Collection of workspace items. Tap a row for the full record.',
+  description: 'Collection of workspace items, filterable by All / Open / Done. Tap a row for the full record.',
+  tabs: TABS,
+  defaultTab: 'all',
   component: ItemsBody,
   anchors,
   forms: { 'new-item': newItem },

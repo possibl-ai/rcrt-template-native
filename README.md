@@ -14,17 +14,30 @@ React Native instead of react-router-dom + the DOM.
 ## The pure-config story on native
 
 ```
-src/app.config.tsx       the Section Registry — the whole app surface (~33 lines)
+src/app.config.tsx       the Section Registry — the whole app surface
 src/sections/*.tsx        one file per section: a domain component + its anchors/forms
+  Home.tsx                  dashboard (stat cards + a delightful empty state w/ sample-data CTA)
+  Items.tsx                 collection with tabs + a prefillable form + a record route
+  ItemRecord.tsx            record-route body (/items/:id, a stack screen)
+  Settings.tsx              persisted SINGLETON settings (upsertByName) + sample-data controls
 src/lib/schemas.ts        defineSchema handles (breadcrumb shapes) — NO database
+src/lib/sample-data.ts    copyable seed/clear pattern (so a new app looks alive on first load)
 src/lib/{api-client,auth,env,eventsource}.ts   the SDK client + Firebase TokenProvider seam
+AGENTS.md                 builder-facing guide (TOUCH/CONFIG/LEAVE, ALWAYS/NEVER, recipes)
 app/                      Expo Router scaffold (thin, mechanical — delegates to the kit)
-  _layout.tsx               <RcrtNativeProvider> + <Stack> + <AdvisorFab>
+  _layout.tsx               <RcrtNativeProvider theme=…> + <Stack> + <AdvisorFab>  (brand tokens live here)
   (tabs)/_layout.tsx        <RcrtTabs app> — bottom tabs derived from the registry
   (tabs)/{home,items,settings}.tsx   3-line <SectionScreen app sectionId=…>
   [section]/[id].tsx        <RecordScreen> — deep-linkable record routes
   advisor.tsx               <AdvisorScreen> — the chat-first advisor (modal)
 ```
+
+This template demonstrates: a dashboard, a collection with **tabs** (the kit's
+`SectionScreen` renders the segmented control from the registry's abstract
+`tabs`), a prefillable **form**, a deep-linkable **record route**, a persisted
+**singleton settings** form (`upsertByName`), advisor **actions** in the
+manifest, a **sample-data** seeding pattern, and brand tokens threaded through
+`<RcrtNativeProvider theme=…>` so web + native feel like one product.
 
 The kit derives Expo Router navigation, the `interpret:ui-manifest`, the advisor
 (chat + grounding + self-provisioning), page-context and SWR caching from the
@@ -54,6 +67,20 @@ the advisor's grounding-tag + self-provisioning contract.
   a body reads the same on both platforms, but it's platform-specific code.
 - **Storage:** AsyncStorage behind the kit's sync `StorageAdapter`.
 
+## Sample data + App Control (same contracts as web)
+
+- **Sample data:** `src/lib/sample-data.ts` seeds a handful of `interpret:item`
+  breadcrumbs tagged `sample:seed` (idempotent), reached from an empty-state
+  "Load sample data" button — never auto-seeded. `clearSampleItems` removes only
+  the marked rows. Copy this for every new collection so the app and the advisor
+  have real data from the first render.
+- **`interpret:ui-manifest`:** `<RcrtNativeProvider>` publishes it on boot
+  (`{ platform: 'native' }`) hash-idempotently to
+  `client.forTenant(EXPO_PUBLIC_RCRT_TENANT_ID)` — the workspace tenant. It is
+  derived from the registry (routes + anchors + forms + `advisor.actions`), so
+  change the registry, never hand-write a manifest. Publication is client-side +
+  lazy: it happens when the app actually runs with a valid tenant + auth.
+
 ## Setup
 
 ```bash
@@ -67,7 +94,7 @@ npm run start                    # Expo dev server (open in Expo Go / a dev buil
 `@possibl/rcrt-sdk` and `@possibl/rcrt-app-kit` are installed from
 `vendor/*.tgz` (`file:` deps) until they're published to npm. Once published,
 **flip `package.json` to registry ranges** (e.g.
-`"@possibl/rcrt-app-kit": "^0.3.0"`, `"@possibl/rcrt-sdk": "^0.2.0"`) and delete
+`"@possibl/rcrt-app-kit": "^0.3.0"`, `"@possibl/rcrt-sdk": "^0.4.0"`) and delete
 `vendor/`.
 
 ## Auth (the seam)

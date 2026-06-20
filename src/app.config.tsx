@@ -29,6 +29,19 @@ export const app = defineApp({
     tagline: 'sees this app',
     // No renderChat → the kit's built-in NativeChat (text-first, RN). The
     // spotlight overlay is web-only; advisor navigation works on native.
-    suggestions: ['What needs my attention?', 'Add an item for me'],
+    suggestions: ['What needs my attention?', 'Add an item for me', 'Mark everything done'],
+    // App-control ACTIONS are serialised into interpret:ui-manifest so the
+    // advisor knows what it may DO (not just navigate). Each maps to a workspace
+    // tool; `approval: 'user'` means the human confirms before it runs. The tool
+    // is implemented platform-side in the paired bundle — the app only DECLARES
+    // the action surface so the manifest is complete (same on web + native).
+    actions: [
+      {
+        name: 'create_item',
+        tool: 'item-act',
+        approval: 'user',
+        description: 'Create a work item. Prefer prefilling the "items.new-item" form so the user confirms.',
+      },
+    ],
   },
 });

@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@possibl/rcrt-app-kit": "file:vendor/possibl-rcrt-app-kit-0.3.0.tgz",
-    "@possibl/rcrt-sdk": "file:vendor/possibl-rcrt-sdk-0.2.0.tgz",
+    "@possibl/rcrt-sdk": "file:vendor/possibl-rcrt-sdk-0.4.0.tgz",
     "@react-native-async-storage/async-storage": "1.23.1",
     "expo": "~51.0.0",
     "expo-constants": "~16.0.0",
