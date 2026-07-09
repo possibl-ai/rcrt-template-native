@@ -94,7 +94,7 @@ npm run start                    # Expo dev server (open in Expo Go / a dev buil
 `@possibl/rcrt-sdk` and `@possibl/rcrt-app-kit` are installed from
 `vendor/*.tgz` (`file:` deps) until they're published to npm. Once published,
 **flip `package.json` to registry ranges** (e.g.
-`"@possibl/rcrt-app-kit": "^0.3.0"`, `"@possibl/rcrt-sdk": "^0.4.0"`) and delete
+`"@possibl/rcrt-app-kit": "^0.4.0"`, `"@possibl/rcrt-sdk": "^0.5.0"`) and delete
 `vendor/`.
 
 ## Auth (the seam)
